@@ -373,3 +373,4 @@ class TransactionController extends Controller
         return $datePrefix . str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }
+
