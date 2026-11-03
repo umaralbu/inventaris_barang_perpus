@@ -49,3 +49,4 @@ class StoreCatalogRequest extends FormRequest
         ];
     }
 }
+

@@ -382,3 +382,4 @@ class InventoryController extends Controller
             ->with('success', "Status unit '{$unit->code}' berhasil {$statusText}.");
     }
 }
+
