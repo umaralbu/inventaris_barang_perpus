@@ -56,7 +56,8 @@
 
     <!-- Daftar Antrean Permohonan -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Desktop Table (>= 640px) -->
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-600 divide-y divide-slate-100">
                 <thead class="bg-slate-50/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                     <tr>
@@ -160,6 +161,68 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Stacked Cards (< 640px) -->
+        <div class="sm:hidden divide-y divide-slate-100">
+            @forelse ($pendingTransactions as $trx)
+                <div class="p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <a href="{{ route('transactions.show', $trx) }}" class="font-bold text-xs text-indigo-600 hover:text-indigo-800">
+                            {{ $trx->transaction_code }}
+                        </a>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                            Menunggu Persetujuan
+                        </span>
+                    </div>
+
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-slate-900 leading-snug">
+                                {{ $trx->catalog->name ?? 'Barang Tanpa Nama' }}
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                {{ $trx->catalog->category->name ?? 'Umum' }}
+                                @if ($trx->catalog && $trx->catalog->brand) • {{ $trx->catalog->brand }} @endif
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center justify-center font-bold px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs shrink-0">
+                            {{ $trx->quantity }} {{ $trx->catalog->unit_name ?? 'Unit' }}
+                        </span>
+                    </div>
+
+                    <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Peminjam:</span>
+                            <span class="font-medium text-slate-800">{{ $trx->staff->name ?? 'Staf Perpustakaan' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Tujuan:</span>
+                            <span class="font-medium text-slate-700">{{ $trx->destinationLocation->name ?? $trx->to_location }}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                            <span class="text-slate-400">Batas Kembali:</span>
+                            <span class="font-medium text-slate-800">{{ $trx->expected_return_date ? $trx->expected_return_date->format('d M Y') : '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                        <button type="button" 
+                                @click="rejectModalOpen = true; selectedTrxId = {{ $trx->id }}; selectedTrxCode = '{{ $trx->transaction_code }}'"
+                                class="px-3 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition">
+                            Tolak
+                        </button>
+                        <a href="{{ route('transactions.approve.show', $trx) }}" 
+                           class="px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm">
+                            Verifikasi & Alokasikan
+                        </a>
+                    </div>
+                </div>
+            @empty
+                <div class="p-6 text-center text-xs text-slate-400">
+                    Semua permohonan telah diproses.
+                </div>
+            @endforelse
         </div>
 
         @if ($pendingTransactions->hasPages())

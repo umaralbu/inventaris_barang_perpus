@@ -102,7 +102,8 @@
 
     <!-- Tabel Riwayat Transaksi -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Desktop Table (>= 640px) -->
+        <div class="hidden sm:block overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-600 divide-y divide-slate-100">
                 <thead class="bg-slate-50/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                     <tr>
@@ -249,6 +250,103 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Stacked Cards (< 640px) -->
+        <div class="sm:hidden divide-y divide-slate-100">
+            @forelse ($transactions as $trx)
+                @php
+                    $st = $trx->status->value ?? $trx->status;
+                    $badgeClasses = match($st) {
+                        'Menunggu Persetujuan'   => 'bg-amber-100 text-amber-800 border-amber-200',
+                        'Dipinjam'               => 'bg-blue-100 text-blue-800 border-blue-200',
+                        'Sebagian Dikembalikan' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                        'Dikembalikan', 'Selesai' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                        'Ditolak'                => 'bg-rose-100 text-rose-800 border-rose-200',
+                        'Dibatalkan'             => 'bg-slate-100 text-slate-700 border-slate-200',
+                        default                  => 'bg-slate-100 text-slate-800 border-slate-200',
+                    };
+                @endphp
+                <div class="p-4 space-y-3">
+                    <!-- Header Kartu: Kode, Tipe, Status -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
+                                {{ $trx->type->label() }}
+                            </span>
+                            <a href="{{ route('transactions.show', $trx) }}" class="font-bold text-xs text-indigo-600 hover:text-indigo-800">
+                                {{ $trx->transaction_code ?? ('TRX-#' . $trx->id) }}
+                            </a>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border {{ $badgeClasses }}">
+                            {{ $st }}
+                        </span>
+                    </div>
+
+                    <!-- Barang & Kuantitas -->
+                    <div class="flex items-start justify-between gap-3 pt-1">
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-slate-900 leading-snug">
+                                {{ $trx->catalog->name ?? ($trx->item->name ?? 'Barang Tanpa Nama') }}
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                {{ $trx->catalog->category->name ?? 'Tanpa Kategori' }}
+                                @if ($trx->catalog && $trx->catalog->brand) • {{ $trx->catalog->brand }} @endif
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center justify-center font-bold px-2 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs shrink-0">
+                            {{ $trx->quantity }} {{ $trx->catalog->unit_name ?? 'Unit' }}
+                        </span>
+                    </div>
+
+                    <!-- Peminjam, Lokasi & Waktu -->
+                    <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Peminjam:</span>
+                            <span class="font-medium text-slate-800">{{ $trx->staff->name ?? ($trx->to_person ?? 'Tidak Tercatat') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">Tujuan:</span>
+                            <span class="font-medium text-slate-700">{{ $trx->destinationLocation->name ?? ($trx->to_location ?? '-') }}</span>
+                        </div>
+                        @if ($trx->expected_return_date)
+                            <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 {{ $trx->isOverdue() ? 'text-rose-600 font-bold' : '' }}">
+                                <span>Batas Kembali:</span>
+                                <span>{{ $trx->expected_return_date->format('d M Y') }} {{ $trx->isOverdue() ? '(Terlambat)' : '' }}</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Tombol Aksi Mobile -->
+                    <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                        <a href="{{ route('transactions.show', $trx) }}" 
+                           class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+                            Detail
+                        </a>
+
+                        @if (Auth::user()->isAdmin() && $trx->isPending())
+                            <a href="{{ route('transactions.approve.show', $trx) }}" 
+                               class="px-3 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition shadow-sm">
+                                Proses
+                            </a>
+                        @endif
+
+                        @if ($trx->isCancellableBy(Auth::user()))
+                            <form method="POST" action="{{ route('transactions.cancel', $trx) }}" class="inline-block"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permohonan pinjam ini?');">
+                                @csrf
+                                <button type="submit" class="px-3 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition">
+                                    Batal
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="p-6 text-center text-xs text-slate-400">
+                    Belum ada riwayat transaksi.
+                </div>
+            @endforelse
         </div>
 
         @if ($transactions->hasPages())
