@@ -37,11 +37,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     // ====================================================================
-    // MODUL TRANSAKSI (PEMINJAMAN & RIWAYAT)
+    // MODUL TRANSAKSI (PEMINJAMAN, PENGEMBALIAN & RIWAYAT)
     // ====================================================================
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/borrow/create', [TransactionController::class, 'createBorrow'])->name('transactions.borrow.create');
     Route::post('/transactions/borrow', [TransactionController::class, 'storeBorrow'])->name('transactions.borrow.store');
+    Route::get('/transactions/return/create', [TransactionController::class, 'createReturn'])->name('transactions.return.create');
+    Route::post('/transactions/return', [TransactionController::class, 'storeReturn'])->name('transactions.return.store');
 
     // ====================================================================
     // MODUL MASTER DATA & MANAJEMEN INVENTARIS (KHUSUS ADMIN)
@@ -52,6 +54,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/transactions/{transaction}/approve', [TransactionController::class, 'showApproval'])->name('transactions.approve.show');
         Route::post('/transactions/{transaction}/approve', [TransactionController::class, 'approve'])->name('transactions.approve');
         Route::post('/transactions/{transaction}/reject', [TransactionController::class, 'reject'])->name('transactions.reject');
+
+        // Perpindahan Lokasi Massal (Batch Transfer)
+        Route::get('/transactions/transfer/create', [TransactionController::class, 'createTransfer'])->name('transactions.transfer.create');
+        Route::post('/transactions/transfer', [TransactionController::class, 'storeTransfer'])->name('transactions.transfer.store');
+
+        // Pemeliharaan & Perbaikan Barang (Maintenance Lifecycle)
+        Route::get('/transactions/maintenance', [TransactionController::class, 'maintenanceIndex'])->name('transactions.maintenance.index');
+        Route::post('/transactions/maintenance/start', [TransactionController::class, 'startMaintenance'])->name('transactions.maintenance.start');
+        Route::post('/transactions/maintenance/{transaction}/complete', [TransactionController::class, 'completeMaintenance'])->name('transactions.maintenance.complete');
 
         // Inventaris Admin Actions (Katalog)
         Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');

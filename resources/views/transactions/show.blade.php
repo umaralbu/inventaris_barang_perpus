@@ -47,6 +47,16 @@
             </a>
         @endif
 
+        @if ($transaction->type === \App\Enums\TransactionType::BORROW && in_array($transaction->status, [\App\Enums\TransactionStatus::DIPINJAM, \App\Enums\TransactionStatus::SEBAGIAN_DIKEMBALIKAN]) && (Auth::user()->isAdmin() || $transaction->user_id === Auth::id()))
+            <a href="{{ route('transactions.return.create', ['borrow_id' => $transaction->id]) }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition shadow-sm shadow-emerald-600/30">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H4m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
+                </svg>
+                <span>Catat Pengembalian</span>
+            </a>
+        @endif
+
         @if ($transaction->isCancellableBy(Auth::user()))
             <form method="POST" action="{{ route('transactions.cancel', $transaction) }}" class="inline-block"
                   onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permohonan pinjam ini?');">

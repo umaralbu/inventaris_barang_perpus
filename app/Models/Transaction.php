@@ -22,6 +22,7 @@ class Transaction extends Model
         'user_id',
         'approved_by_user_id',
         'staff_id',
+        'from_location_id',
         'to_location_id',
         'borrow_transaction_id',
         'type',
@@ -110,6 +111,14 @@ class Transaction extends Model
     public function destinationLocation(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'to_location_id');
+    }
+
+    /**
+     * Source location relation.
+     */
+    public function sourceLocation(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'from_location_id');
     }
 
     /**
