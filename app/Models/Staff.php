@@ -31,5 +31,13 @@ class Staff extends Model
     {
         return $this->hasMany(Transaction::class, 'staff_id');
     }
+
+    /**
+     * Scope a query to only include active staff members.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }
 

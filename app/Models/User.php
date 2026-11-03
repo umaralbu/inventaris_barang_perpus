@@ -84,4 +84,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class, 'approved_by_user_id');
     }
+
+    /**
+     * Scope a query to only include active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

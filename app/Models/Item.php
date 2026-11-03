@@ -96,5 +96,13 @@ class Item extends Model
             ->where('condition', ItemCondition::BAIK->value)
             ->where('is_active', true);
     }
+
+    /**
+     * Scope query to only active items.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }
 

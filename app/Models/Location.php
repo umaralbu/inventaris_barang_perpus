@@ -46,5 +46,13 @@ class Location extends Model
     {
         return $this->hasMany(TransactionDetail::class, 'to_location_id');
     }
+
+    /**
+     * Scope a query to only include active locations.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }
 

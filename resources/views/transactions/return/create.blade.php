@@ -113,7 +113,7 @@
                 init() {
                     @foreach ($unreturnedDetails as $d)
                         this.unitSelections[{{ $d->item_id }}] = true;
-                    @endphp
+                    @endforeach
                 },
                 toggleAll() {
                     const nextVal = !this.isAllSelected();
@@ -304,3 +304,4 @@
     @endif
 </div>
 @endsection
+
