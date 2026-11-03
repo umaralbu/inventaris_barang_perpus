@@ -82,3 +82,4 @@ class AuthenticationAndRoleTest extends TestCase
         $this->assertGuest();
     }
 }
+
