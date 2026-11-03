@@ -13,7 +13,15 @@ class Category extends Model
     protected $fillable = [
         'name',
         'description',
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
     /**
      * Get the item catalogs associated with this category.
