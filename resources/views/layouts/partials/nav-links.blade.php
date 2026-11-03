@@ -99,9 +99,9 @@
 
     <div class="mt-2 space-y-1">
         <!-- Katalog & Unit Barang -->
-        <a href="{{ Route::has('inventory.index') ? route('inventory.index') : '#' }}" 
-           class="group flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <a href="{{ route('inventory.index') }}" 
+           class="group flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition {{ request()->routeIs('inventory.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('inventory.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-200' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
             <span class="truncate" x-show="!sidebarCollapsed || {{ $isMobile ? 'true' : 'false' }}">Katalog & Unit Fisik</span>

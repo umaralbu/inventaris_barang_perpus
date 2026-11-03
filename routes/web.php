@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\StaffController;
@@ -30,9 +31,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ====================================================================
-    // MODUL MASTER DATA (KHUSUS ADMIN)
+    // MODUL INVENTARIS: JELAJAH KATALOG & DETAIL (ADMIN & PEGAWAI)
+    // ====================================================================
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
+    // ====================================================================
+    // MODUL MASTER DATA & MANAJEMEN INVENTARIS (KHUSUS ADMIN)
     // ====================================================================
     Route::middleware('role:admin')->group(function () {
+        // Inventaris Admin Actions (Katalog)
+        Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/{catalog}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{catalog}', [InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{catalog}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::patch('/inventory/{catalog}/toggle-status', [InventoryController::class, 'toggleStatus'])->name('inventory.toggle');
+
+        // Inventaris Admin Actions (Unit Fisik)
+        Route::post('/inventory/{catalog}/units', [InventoryController::class, 'storeUnit'])->name('inventory.units.store');
+        Route::put('/inventory/units/{unit}', [InventoryController::class, 'updateUnit'])->name('inventory.units.update');
+        Route::delete('/inventory/units/{unit}', [InventoryController::class, 'destroyUnit'])->name('inventory.units.destroy');
+        Route::patch('/inventory/units/{unit}/toggle-status', [InventoryController::class, 'toggleUnit'])->name('inventory.units.toggle');
+
         // Kategori Barang
         Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle');
         Route::resource('categories', CategoryController::class);
@@ -54,6 +74,9 @@ Route::middleware('auth')->group(function () {
             return response()->json(['status' => 'success', 'message' => 'Halo Admin, Anda memiliki hak akses penuh!']);
         })->name('admin.test');
     });
+
+    // Detail Katalog (ditempatkan setelah /inventory/create agar tidak konflik wildcard)
+    Route::get('/inventory/{catalog}', [InventoryController::class, 'show'])->name('inventory.show');
 
     // Rute pengujian role pegawai
     Route::middleware('role:pegawai')->prefix('pegawai')->name('pegawai.')->group(function () {
