@@ -66,3 +66,4 @@ class TransactionDetail extends Model
         return $this->belongsTo(Location::class, 'to_location_id');
     }
 }
+

@@ -80,3 +80,4 @@ class ModelRelationsTest extends TestCase
         $this->assertNotNull($staff);
     }
 }
+

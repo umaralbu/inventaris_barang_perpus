@@ -47,3 +47,4 @@ class Location extends Model
         return $this->hasMany(TransactionDetail::class, 'to_location_id');
     }
 }
+

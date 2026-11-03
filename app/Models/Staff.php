@@ -32,3 +32,4 @@ class Staff extends Model
         return $this->hasMany(Transaction::class, 'staff_id');
     }
 }
+

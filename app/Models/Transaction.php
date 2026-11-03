@@ -128,3 +128,4 @@ class Transaction extends Model
         return $this->isPending() && ($user->isAdmin() || $this->user_id === $user->id);
     }
 }
+
