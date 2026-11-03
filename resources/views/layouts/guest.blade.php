@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Masuk' }} - Sistem Inventaris Barang Perpustakaan</title>
     
-    <!-- Fonts -->
+    <!-- Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800|inter:400,500,600,700" rel="stylesheet" />
 
     <!-- Tailwind CSS & Vite Assets -->
     @if (file_exists(public_path('build/manifest.json')))
@@ -22,7 +22,7 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif; }
     </style>
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8">

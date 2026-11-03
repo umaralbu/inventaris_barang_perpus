@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Dashboard' }} - Sistem Inventaris Perpustakaan</title>
     
-    <!-- Fonts -->
+    <!-- Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800|inter:400,500,600,700" rel="stylesheet" />
 
     <!-- Tailwind CSS / Vite -->
     @if (file_exists(public_path('build/manifest.json')))
@@ -22,7 +22,7 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif; }
     </style>
 </head>
 <body class="h-full text-slate-800 antialiased overflow-x-hidden" x-data="{ mobileMenuOpen: false, sidebarCollapsed: false }">
@@ -124,7 +124,7 @@
                     </div>
                     <div class="min-w-0">
                         <h1 class="text-sm font-bold text-white tracking-tight leading-tight truncate">Inventaris Perpus</h1>
-                        <p class="text-[10px] text-slate-400 truncate">V2 Enterprise Redesign</p>
+                        <p class="text-xs text-slate-400 truncate">V2 Logistik & Aset</p>
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@
 
                 <button type="button" 
                         @click="sidebarCollapsed = !sidebarCollapsed" 
-                        class="text-slate-400 hover:text-white p-1 rounded-lg focus:outline-none hidden lg:block"
+                        class="text-slate-400 hover:text-white p-1.5 rounded-lg focus:outline-none hidden lg:block"
                         :title="sidebarCollapsed ? 'Perlebar Sidebar' : 'Ciutkan Sidebar'">
                     <svg class="w-4 h-4 transform transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -153,19 +153,19 @@
 
             <!-- Bottom User Profile & Logout -->
             <div class="p-3 border-t border-slate-800 bg-slate-950/40">
-                <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-800/40 border border-slate-800" x-show="!sidebarCollapsed">
-                    <div class="h-8 w-8 rounded-full bg-indigo-600/30 text-indigo-300 font-semibold flex items-center justify-center text-xs shrink-0 border border-indigo-500/40">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-800/40 border border-slate-800" x-show="!sidebarCollapsed">
+                    <div class="h-9 w-9 rounded-full bg-indigo-600/30 text-indigo-300 font-bold flex items-center justify-center text-xs shrink-0 border border-indigo-500/40">
                         {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-medium text-white truncate">{{ Auth::user()->name ?? 'Pengguna' }}</p>
-                        <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-medium {{ Auth::user()->isAdmin() ? 'bg-purple-900/60 text-purple-200 border border-purple-700' : 'bg-sky-900/60 text-sky-200 border border-sky-700' }}">
+                        <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name ?? 'Pengguna' }}</p>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold {{ Auth::user()->isAdmin() ? 'bg-purple-900/60 text-purple-200 border border-purple-700' : 'bg-sky-900/60 text-sky-200 border border-sky-700' }}">
                             {{ Auth::user()->isAdmin() ? 'Administrator' : 'Pegawai' }}
                         </span>
                     </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" title="Keluar" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-700/50 transition">
+                        <button type="submit" title="Keluar" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg hover:bg-slate-700/50 transition">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
@@ -202,10 +202,10 @@
 
                     <!-- Page Title / Breadcrumb -->
                     <div>
-                        <h2 class="text-base font-semibold text-slate-900 leading-tight">
+                        <h2 class="text-lg font-bold text-slate-900 leading-tight">
                             @yield('page_title', 'Dashboard')
                         </h2>
-                        <p class="text-xs text-slate-500 hidden sm:block">
+                        <p class="text-xs sm:text-sm text-slate-500 hidden sm:block">
                             @yield('page_subtitle', 'Sistem Informasi Manajemen Barang Perpustakaan')
                         </p>
                     </div>
@@ -214,8 +214,8 @@
                 <!-- Right Header Actions -->
                 <div class="flex items-center gap-3">
                     <!-- Date badge -->
-                    <div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold border border-slate-200">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>{{ now()->translatedFormat('l, d M Y') }}</span>
