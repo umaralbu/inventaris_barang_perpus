@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -20,8 +21,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -37,13 +40,46 @@ class User extends Authenticatable
     /**
      * Get the attributes that should be cast.
      *
-     * @return array<string, string>
+     * @return array<string, string|class-string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Check if user has admin role.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::ADMIN;
+    }
+
+    /**
+     * Check if user has pegawai role.
+     */
+    public function isPegawai(): bool
+    {
+        return $this->role === UserRole::PEGAWAI;
+    }
+
+    /**
+     * Transactions created by this user.
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'user_id');
+    }
+
+    /**
+     * Transactions approved by this user (admin).
+     */
+    public function approvedTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'approved_by_user_id');
     }
 }
