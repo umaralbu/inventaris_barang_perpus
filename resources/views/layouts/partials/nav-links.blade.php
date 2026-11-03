@@ -22,10 +22,10 @@
 
     <div class="mt-2 space-y-1">
         <!-- Semua Riwayat Transaksi -->
-        <a href="{{ Route::has('transactions.index') ? route('transactions.index') : '#' }}" 
-           class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">
+        <a href="{{ route('transactions.index') }}" 
+           class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition {{ request()->routeIs('transactions.index') || request()->routeIs('transactions.show') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
             <div class="flex items-center gap-3 min-w-0">
-                <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('transactions.index') || request()->routeIs('transactions.show') ? 'text-white' : 'text-slate-400 group-hover:text-slate-200' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
                 <span class="truncate" x-show="!sidebarCollapsed || {{ $isMobile ? 'true' : 'false' }}">Riwayat Transaksi</span>
@@ -34,17 +34,17 @@
 
         <!-- Antrean Persetujuan (Khusus Admin) -->
         @if ($isAdmin)
-            <a href="{{ Route::has('transactions.pending') ? route('transactions.pending') : '#' }}" 
-               class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <a href="{{ route('transactions.pending') }}" 
+               class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition {{ request()->routeIs('transactions.pending') || request()->routeIs('transactions.approve.show') ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                 <div class="flex items-center gap-3 min-w-0">
-                    <svg class="w-5 h-5 shrink-0 text-amber-400 group-hover:text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('transactions.pending') || request()->routeIs('transactions.approve.show') ? 'text-amber-300' : 'text-amber-400 group-hover:text-amber-300' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span class="truncate" x-show="!sidebarCollapsed || {{ $isMobile ? 'true' : 'false' }}">Antrean Persetujuan</span>
                 </div>
                 @if ($pendingCount > 0)
                     <span x-show="!sidebarCollapsed || {{ $isMobile ? 'true' : 'false' }}" 
-                          class="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          class="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-900 font-black">
                         {{ $pendingCount }}
                     </span>
                 @endif
@@ -52,9 +52,9 @@
         @endif
 
         <!-- Form Pengajuan Pinjam (Pegawai & Admin) -->
-        <a href="{{ Route::has('transactions.borrow.create') ? route('transactions.borrow.create') : '#' }}" 
-           class="group flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <a href="{{ route('transactions.borrow.create') }}" 
+           class="group flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition {{ request()->routeIs('transactions.borrow.*') ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('transactions.borrow.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-200' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
             <span class="truncate" x-show="!sidebarCollapsed || {{ $isMobile ? 'true' : 'false' }}">Ajukan Peminjaman</span>

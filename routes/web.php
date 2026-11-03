@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\StaffController;
 use App\Http\Controllers\Master\UserController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,9 +37,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     // ====================================================================
+    // MODUL TRANSAKSI (PEMINJAMAN & RIWAYAT)
+    // ====================================================================
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/borrow/create', [TransactionController::class, 'createBorrow'])->name('transactions.borrow.create');
+    Route::post('/transactions/borrow', [TransactionController::class, 'storeBorrow'])->name('transactions.borrow.store');
+
+    // ====================================================================
     // MODUL MASTER DATA & MANAJEMEN INVENTARIS (KHUSUS ADMIN)
     // ====================================================================
     Route::middleware('role:admin')->group(function () {
+        // Antrean Persetujuan Transaksi
+        Route::get('/transactions/pending', [TransactionController::class, 'pending'])->name('transactions.pending');
+        Route::get('/transactions/{transaction}/approve', [TransactionController::class, 'showApproval'])->name('transactions.approve.show');
+        Route::post('/transactions/{transaction}/approve', [TransactionController::class, 'approve'])->name('transactions.approve');
+        Route::post('/transactions/{transaction}/reject', [TransactionController::class, 'reject'])->name('transactions.reject');
+
         // Inventaris Admin Actions (Katalog)
         Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
@@ -77,6 +91,10 @@ Route::middleware('auth')->group(function () {
 
     // Detail Katalog (ditempatkan setelah /inventory/create agar tidak konflik wildcard)
     Route::get('/inventory/{catalog}', [InventoryController::class, 'show'])->name('inventory.show');
+
+    // Detail & Pembatalan Transaksi
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+    Route::post('/transactions/{transaction}/cancel', [TransactionController::class, 'cancel'])->name('transactions.cancel');
 
     // Rute pengujian role pegawai
     Route::middleware('role:pegawai')->prefix('pegawai')->name('pegawai.')->group(function () {

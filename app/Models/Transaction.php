@@ -17,10 +17,12 @@ class Transaction extends Model
 
     protected $fillable = [
         'transaction_code',
+        'catalog_id',
         'item_id',
         'user_id',
         'approved_by_user_id',
         'staff_id',
+        'to_location_id',
         'borrow_transaction_id',
         'type',
         'status',
@@ -92,6 +94,22 @@ class Transaction extends Model
     public function returnTransactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'borrow_transaction_id');
+    }
+
+    /**
+     * Item catalog requested in this transaction.
+     */
+    public function catalog(): BelongsTo
+    {
+        return $this->belongsTo(ItemCatalog::class, 'catalog_id');
+    }
+
+    /**
+     * Destination location relation.
+     */
+    public function destinationLocation(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'to_location_id');
     }
 
     /**

@@ -50,8 +50,17 @@
                     <!-- Action Buttons -->
                     <div class="flex items-center gap-2">
                         <a href="{{ route('inventory.index') }}" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition">
-                            &larr; Kembali ke Katalog
+                            &larr; Kembali
                         </a>
+                        @if ($catalog->is_active && $catalog->available_units_count > 0)
+                            <a href="{{ route('transactions.borrow.create', ['catalog_id' => $catalog->id]) }}" 
+                               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm shadow-indigo-600/30">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Ajukan Pinjam</span>
+                            </a>
+                        @endif
                         @if (Auth::user()->isAdmin())
                             <a href="{{ route('inventory.edit', $catalog) }}" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
                                 Edit Katalog
