@@ -381,5 +381,100 @@ class InventoryController extends Controller
         return redirect()->back()
             ->with('success', "Status unit '{$unit->code}' berhasil {$statusText}.");
     }
+
+    /**
+     * Export inventory units data to CSV respecting active filters.
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = Item::with(['catalog.category', 'location']);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhereHas('catalog', function ($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($categoryId = $request->input('category_id')) {
+            $query->where(function ($q) use ($categoryId) {
+                $q->where('category_id', $categoryId)
+                  ->orWhereHas('catalog', fn ($cq) => $cq->where('category_id', $categoryId));
+            });
+        }
+
+        if ($locationId = $request->input('location_id')) {
+            $query->where('location_id', $locationId);
+        }
+
+        if ($condition = $request->input('condition')) {
+            $query->where('condition', $condition);
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($request->has('is_active') && $request->input('is_active') !== '') {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        $items = $query->orderBy('code')->get();
+
+        $filename = 'inventaris-barang-' . date('Ymd-His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($items) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Windows Excel
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Kode Unit',
+                'Nama Barang',
+                'Merek',
+                'Kategori',
+                'Lokasi Rak / Ruangan',
+                'Kondisi Fisik',
+                'Status Ketersediaan',
+                'Tanggal Pengadaan',
+                'Harga Pengadaan (Rp)',
+                'Status Aktif',
+            ]);
+
+            foreach ($items as $idx => $item) {
+                fputcsv($file, [
+                    $idx + 1,
+                    $item->code,
+                    $item->catalog->name ?? $item->name,
+                    $item->catalog->brand ?? ($item->brand ?? '-'),
+                    $item->catalog->category->name ?? ($item->category->name ?? '-'),
+                    $item->location->name ?? '-',
+                    $item->condition->value ?? $item->condition,
+                    $item->status->value ?? $item->status,
+                    $item->purchase_date ? $item->purchase_date->format('Y-m-d') : '-',
+                    $item->purchase_price ? number_format($item->purchase_price, 0, ',', '.') : '-',
+                    $item->is_active ? 'Aktif' : 'Diarsipkan (Nonaktif)',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
 

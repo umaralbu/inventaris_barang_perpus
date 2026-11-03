@@ -35,16 +35,22 @@ class DashboardController extends Controller
                 ->count();
 
             // Low stock alerts (katalog dengan unit tersedia <= 5)
-            $catalogs = ItemCatalog::withCount([
+            $lowStockCatalogs = ItemCatalog::with('category')->withCount([
                 'units as available_count' => function ($query) {
                     $query->where('is_active', true)
                         ->where('status', ItemUnitStatus::TERSEDIA->value)
                         ->where('condition', ItemCondition::BAIK->value);
                 }
-            ])->having('available_count', '<=', 5)->take(5)->get();
+            ])
+            ->active()
+            ->having('available_count', '<=', 5)
+            ->orderBy('available_count')
+            ->take(6)
+            ->get();
 
-            $recentTransactions = Transaction::with(['staff', 'user', 'details.item'])
-                ->latest()
+            $recentTransactions = Transaction::with(['catalog', 'staff', 'user', 'destinationLocation'])
+                ->latest('transaction_date')
+                ->latest('id')
                 ->take(5)
                 ->get();
 
@@ -56,26 +62,27 @@ class DashboardController extends Controller
                 'brokenUnits'           => $brokenUnits,
                 'pendingApprovalsCount' => $pendingApprovalsCount,
                 'overdueCount'          => $overdueCount,
-                'lowStockCatalogs'      => $catalogs,
+                'lowStockCatalogs'      => $lowStockCatalogs,
                 'recentTransactions'    => $recentTransactions,
             ]);
         }
 
         // Tampilan Pegawai
         $myActiveBorrowsCount = Transaction::where('user_id', $user->id)
-            ->where('status', TransactionStatus::DIPINJAM->value)
+            ->whereIn('status', [TransactionStatus::DIPINJAM->value, TransactionStatus::SEBAGIAN_DIKEMBALIKAN->value])
             ->count();
         $myPendingRequestsCount = Transaction::where('user_id', $user->id)
             ->where('status', TransactionStatus::MENUNGGU_PERSETUJUAN->value)
             ->count();
         $myDueThisWeekCount = Transaction::where('user_id', $user->id)
-            ->where('status', TransactionStatus::DIPINJAM->value)
+            ->whereIn('status', [TransactionStatus::DIPINJAM->value, TransactionStatus::SEBAGIAN_DIKEMBALIKAN->value])
             ->whereNotNull('expected_return_date')
             ->whereBetween('expected_return_date', [now()->toDateString(), now()->addDays(7)->toDateString()])
             ->count();
         $myRecentTransactions = Transaction::where('user_id', $user->id)
-            ->with(['details.item', 'staff'])
-            ->latest()
+            ->with(['catalog', 'staff', 'details.item'])
+            ->latest('transaction_date')
+            ->latest('id')
             ->take(5)
             ->get();
 
@@ -88,4 +95,3 @@ class DashboardController extends Controller
         ]);
     }
 }
-

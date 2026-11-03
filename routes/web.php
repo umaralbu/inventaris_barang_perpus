@@ -34,11 +34,13 @@ Route::middleware('auth')->group(function () {
     // ====================================================================
     // MODUL INVENTARIS: JELAJAH KATALOG & DETAIL (ADMIN & PEGAWAI)
     // ====================================================================
+    Route::get('/inventory/export-csv', [InventoryController::class, 'exportCsv'])->name('inventory.export_csv');
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     // ====================================================================
     // MODUL TRANSAKSI (PEMINJAMAN, PENGEMBALIAN & RIWAYAT)
     // ====================================================================
+    Route::get('/transactions/export-csv', [TransactionController::class, 'exportCsv'])->name('transactions.export_csv');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/borrow/create', [TransactionController::class, 'createBorrow'])->name('transactions.borrow.create');
     Route::post('/transactions/borrow', [TransactionController::class, 'storeBorrow'])->name('transactions.borrow.store');

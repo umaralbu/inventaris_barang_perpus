@@ -110,20 +110,30 @@
             </div>
         </form>
 
-        @if (Auth::user()->isAdmin())
-            <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
-                <span class="text-xs text-slate-500">
-                    Menampilkan total <strong>{{ $catalogs->total() }}</strong> kelompok katalog jenis barang
-                </span>
-                <a href="{{ route('inventory.create') }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <span class="text-xs text-slate-500">
+                Menampilkan total <strong>{{ $catalogs->total() }}</strong> kelompok jenis barang ({{ number_format(\App\Models\Item::where('is_active', true)->count()) }} total unit fisik)
+            </span>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <a href="{{ route('inventory.export_csv', request()->query()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100 text-xs font-semibold shadow-xs transition w-full sm:w-auto"
+                   title="Unduh data inventaris dalam format CSV">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span>Tambah Katalog & Generate Unit</span>
+                    <span>Ekspor CSV</span>
                 </a>
+                @if (Auth::user()->isAdmin())
+                    <a href="{{ route('inventory.create') }}" 
+                       class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Tambah Katalog & Unit</span>
+                    </a>
+                @endif
             </div>
-        @endif
+        </div>
     </div>
 
     <!-- Data Table Container -->

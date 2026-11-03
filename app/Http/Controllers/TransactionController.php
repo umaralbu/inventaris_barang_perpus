@@ -815,4 +815,107 @@ class TransactionController extends Controller
 
         return $datePrefix . str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Export transactions data to CSV respecting active filters and user role.
+     */
+    public function exportCsv(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = Transaction::with(['catalog.category', 'staff', 'user', 'approver', 'destinationLocation', 'sourceLocation', 'details.item'])
+            ->latest('transaction_date')
+            ->latest('id');
+
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('transaction_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('transaction_date', '<=', $request->end_date);
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('transaction_code', 'like', "%{$search}%")
+                  ->orWhereHas('staff', function ($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('catalog', function ($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $transactions = $query->get();
+
+        $filename = 'riwayat-transaksi-' . date('Ymd-His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($transactions) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Kode Transaksi',
+                'Tipe Transaksi',
+                'Status',
+                'Nama Barang / Katalog',
+                'Jumlah Unit',
+                'Peminjam / Penanggung Jawab',
+                'Lokasi Asal',
+                'Lokasi Tujuan',
+                'Tanggal Transaksi',
+                'Estimasi Batas Pengembalian',
+                'Akun Pemohon',
+                'Admin Penyetujui',
+                'Catatan / Keperluan',
+            ]);
+
+            foreach ($transactions as $idx => $tx) {
+                fputcsv($file, [
+                    $idx + 1,
+                    $tx->transaction_code,
+                    $tx->type->label(),
+                    $tx->status->value ?? $tx->status,
+                    $tx->catalog->name ?? ($tx->item->name ?? '-'),
+                    $tx->quantity,
+                    $tx->staff->name ?? ($tx->to_person ?? '-'),
+                    $tx->sourceLocation->name ?? ($tx->from_location ?? '-'),
+                    $tx->destinationLocation->name ?? ($tx->to_location ?? '-'),
+                    $tx->transaction_date ? $tx->transaction_date->format('Y-m-d') : '-',
+                    $tx->expected_return_date ? $tx->expected_return_date->format('Y-m-d') : '-',
+                    $tx->user->name ?? '-',
+                    $tx->approver->name ?? '-',
+                    $tx->notes ?? '-',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
